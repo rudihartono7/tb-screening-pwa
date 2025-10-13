@@ -1,103 +1,115 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { Users, FileText, BarChart3, AlertTriangle, Bell, Search } from 'lucide-react';
+import { DashboardCard } from '@/components/dashboard/DashboardCard';
+import { StatsChart } from '@/components/dashboard/StatsChart';
+import { GeospatialMap } from '@/components/dashboard/GeospatialMap';
+import { RecentActivity } from '@/components/dashboard/RecentActivity';
+import { Sidebar } from '@/components/ui/Sidebar';
+
+export default function Dashboard() {
+  // Mock data - replace with real API calls
+  const stats = {
+    totalFamilies: 1247,
+    totalPatients: 4892,
+    totalSamples: 3456,
+    analysisResults: 3201,
+  };
+
+  const chartData = [
+    { label: 'Jan', positive: 12, negative: 145, pending: 8 },
+    { label: 'Feb', positive: 8, negative: 167, pending: 12 },
+    { label: 'Mar', positive: 15, negative: 189, pending: 6 },
+    { label: 'Apr', positive: 22, negative: 201, pending: 15 },
+    { label: 'May', positive: 18, negative: 234, pending: 9 },
+    { label: 'Jun', positive: 25, negative: 267, pending: 18 },
+  ];
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gray-50">
+      <Sidebar />
+      
+      {/* Main Content */}
+      <div className="lg:pl-64">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="ml-16 lg:ml-0">
+                <h1 className="text-2xl font-bold text-gray-900">TB Screening Dashboard</h1>
+                <p className="text-sm text-gray-600">Monitor tuberculosis screening activities</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="relative hidden sm:block">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <button className="p-2 text-gray-400 hover:text-gray-600 relative">
+                  <Bell className="h-6 w-6" />
+                  <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+        {/* Main Content */}
+        <main className="p-4 sm:p-6 lg:p-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <DashboardCard
+              title="Total Families"
+              value={stats.totalFamilies}
+              icon={Users}
+              color="blue"
+              change={{ value: 12, type: 'increase' }}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            <DashboardCard
+              title="Total Patients"
+              value={stats.totalPatients}
+              icon={Users}
+              color="green"
+              change={{ value: 8, type: 'increase' }}
+            />
+            <DashboardCard
+              title="Samples Collected"
+              value={stats.totalSamples}
+              icon={FileText}
+              color="purple"
+              change={{ value: 15, type: 'increase' }}
+            />
+            <DashboardCard
+              title="Analysis Results"
+              value={stats.analysisResults}
+              icon={AlertTriangle}
+              color="yellow"
+              change={{ value: 3, type: 'decrease' }}
+            />
+          </div>
+
+          {/* Charts and Maps */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Analysis Trends</h3>
+              <StatsChart data={chartData} />
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Geographic Distribution</h3>
+              <GeospatialMap />
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+            <RecentActivity />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
