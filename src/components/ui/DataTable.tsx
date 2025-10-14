@@ -79,7 +79,7 @@ export function DataTable<T extends Record<string, any>>({
     const value = item[column.key as keyof T];
     if (value === null || value === undefined) return '-';
     if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-    if (value && typeof value === 'object' && value instanceof Date) return value.toLocaleDateString();
+    if (value && typeof value === 'object' && (value as any) instanceof Date) return (value as Date).toLocaleDateString();
     return String(value);
   };
 
