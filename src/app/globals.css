@@ -104,7 +104,16 @@ body {
 
 /* Leaflet map styles */
 .leaflet-container {
-  height: 100%;
-  width: 100%;
+  height: 100% !important;
+  width: 100% !important;
   z-index: 1;
+}
+
+/* Fix for Leaflet tiles not loading properly */
+.leaflet-tile-pane {
+  z-index: 1;
+}
+
+.leaflet-control-container {
+  z-index: 1000;
 }

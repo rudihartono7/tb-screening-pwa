@@ -85,6 +85,17 @@ export function GeospatialMap() {
     });
   }, []);
 
+  // Force map resize after component mounts
+  useEffect(() => {
+    if (isClient) {
+      const timer = setTimeout(() => {
+        // Trigger a window resize event to help Leaflet recalculate
+        window.dispatchEvent(new Event('resize'));
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isClient]);
+
   const createCustomIcon = (positiveCount: number) => {
     if (!L) return null;
     
@@ -134,6 +145,7 @@ export function GeospatialMap() {
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
         />
         {mockData.map((location) => {
           const icon = createCustomIcon(location.positiveCount);

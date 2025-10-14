@@ -12,6 +12,7 @@ import { syncManager } from '@/lib/sync';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { DataTable } from '@/components/ui/DataTable';
 import { cn } from '@/lib/utils';
+import { apiService } from '@/services/api';
 
 interface SampleFormData {
   patientId: string;
@@ -42,6 +43,8 @@ export default function SamplesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+  const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
 
   const { isOnline, isSyncing, syncError } = useOfflineSync();
 
@@ -119,8 +122,11 @@ export default function SamplesPage() {
   };
 
   const openImageModal = (sample: SampleDto) => {
+    console.log('Opening image modal for sample:', sample);
     setSelectedSample(sample);
     setIsImageModalOpen(true);
+    // Load image URLs when modal opens
+    loadImageUrls(sample);
   };
 
   const closeModal = () => {
@@ -269,6 +275,42 @@ export default function SamplesPage() {
   const getPatientName = (patientId: string) => {
     const patient = patients.find(p => p.id === patientId);
     return patient ? patient.name : 'Unknown Patient';
+  };
+
+  // Function to fetch image URL from API
+  const fetchImageUrl = async (imageId: string) => {
+    if (imageUrls[imageId] || loadingImages[imageId]) {
+      return imageUrls[imageId];
+    }
+
+    console.log('Fetching image URL for:', imageId);
+    setLoadingImages(prev => ({ ...prev, [imageId]: true }));
+    
+    try {
+      const response = await apiService.get<{ url: string; expiresIn: number }>(`/images/url/${imageId}?expirationMinutes=60`);
+      console.log('Image URL response:', response);
+      const imageUrl = response.url;
+      
+      setImageUrls(prev => ({ ...prev, [imageId]: imageUrl }));
+      setLoadingImages(prev => ({ ...prev, [imageId]: false }));
+      
+      return imageUrl;
+    } catch (error) {
+      console.error('Error fetching image URL:', error);
+      setLoadingImages(prev => ({ ...prev, [imageId]: false }));
+      return null;
+    }
+  };
+
+  // Load image URLs when modal opens
+  const loadImageUrls = async (sample: SampleDto) => {
+    console.log('Loading image URLs for sample:', sample.id, 'Images:', sample.sampleImages);
+    if (sample.sampleImages && sample.sampleImages.length > 0) {
+      for (const image of sample.sampleImages) {
+        console.log('Processing image:', image);
+        await fetchImageUrl(image.id);
+      }
+    }
   };
 
   return (
@@ -605,8 +647,39 @@ export default function SamplesPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 {selectedSample.sampleImages.map((image: any) => (
                   <div key={image.id} className="border rounded-lg p-4">
-                    <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 flex items-center justify-center">
-                      <FileImage className="h-8 w-8 text-gray-400" />
+                    <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 overflow-hidden relative">
+                      {loadingImages[image.id] ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <LoadingSpinner size="sm" />
+                          <span className="ml-2 text-sm text-gray-500">Loading image...</span>
+                        </div>
+                      ) : imageUrls[image.id] ? (
+                        <img
+                          src={imageUrls[image.id]}
+                          alt={image.originalFilename}
+                          className="w-full h-full object-cover"
+                          onLoad={() => console.log('Image loaded successfully:', image.id)}
+                          onError={(e) => {
+                            console.error('Failed to load image:', image.id, 'URL:', imageUrls[image.id]);
+                            // Show fallback icon on error
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const fallback = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div 
+                        className="fallback-icon w-full h-full flex items-center justify-center absolute top-0 left-0"
+                        style={{ display: imageUrls[image.id] ? 'none' : 'flex' }}
+                      >
+                        <div className="text-center">
+                          <FileImage className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                          <p className="text-xs text-gray-500">
+                            {loadingImages[image.id] ? 'Loading...' : 'No preview'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <p className="text-sm font-medium">{image.originalFilename}</p>
                     <p className="text-xs text-gray-500">

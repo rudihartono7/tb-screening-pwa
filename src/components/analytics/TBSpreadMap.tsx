@@ -65,6 +65,17 @@ export function TBSpreadMap({ data }: TBSpreadMapProps) {
     setIsClient(true);
   }, []);
 
+  // Force map resize after component mounts
+  useEffect(() => {
+    if (isClient) {
+      const timer = setTimeout(() => {
+        // Trigger a window resize event to help Leaflet recalculate
+        window.dispatchEvent(new Event('resize'));
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isClient]);
+
   if (!isClient) {
     return (
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
