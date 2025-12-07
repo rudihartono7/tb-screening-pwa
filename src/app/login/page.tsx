@@ -12,8 +12,8 @@ import { cn } from '@/lib/utils';
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: 'admin@tbscreening.com',
+    password: 'password123',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

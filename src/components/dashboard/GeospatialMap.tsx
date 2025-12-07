@@ -74,7 +74,14 @@ export function GeospatialMap() {
     // Dynamically import Leaflet
     import('leaflet').then((leaflet) => {
       setL(leaflet.default);
-      
+      // ensure default marker icons and CSS are available
+      try {
+        // Try to import leaflet css (so markers show correctly)
+        import('leaflet/dist/leaflet.css');
+      } catch (err) {
+        // ignore - some build setups include CSS elsewhere
+      }
+
       // Fix for default markers
       delete (leaflet.default.Icon.Default.prototype as any)._getIconUrl;
       leaflet.default.Icon.Default.mergeOptions({
@@ -127,7 +134,8 @@ export function GeospatialMap() {
     });
   };
 
-  if (!isClient) {
+  // Wait until we're on the client and Leaflet is loaded before rendering the map
+  if (!isClient || !L) {
     return (
       <div className="h-80 bg-gray-100 rounded-lg flex items-center justify-center">
         <div className="text-gray-500">Loading map...</div>
